@@ -1,0 +1,26 @@
+﻿@using EmailPOC.Controllers.Surface
+@using EmailPOC.Helpers
+@using EmailPOC.ViewModels
+@using Umbraco.Cms.Core.Services
+@model NewsletterSubscriberViewModel
+
+@using (Html.BeginUmbracoForm<NewsletterSubscriptionController>(nameof(NewsletterSubscriptionController.Subscribe), FormMethod.Post))
+{
+    <div class="editor-field">
+        @Html.TextBoxFor(x => x.Email, new { id = "Email", name = "Email", type = "email", placeholder = "Your Email", @class = "text-box single-line" })
+        @Html.ValidationMessageFor(x => x.Email)
+    </div>
+    @if (Html.TempData[NewsletterSubscriptionController.TempNewsletterMessageKey] != null)
+    {
+        <script>
+            $(document).ready(function () {
+                $('.alert.alert-success.newsletterC').addClass('show');
+                setTimeout(function () {
+                    $('.alert.alert-success.newsletterC').removeClass('show');
+                }, 3000);
+            });
+        </script>
+    }
+    <input type="submit" placeholder="Your Email" value="Subscribe" />
+}
+

@@ -1,0 +1,50 @@
+﻿@using Umbraco.Cms.Core.Models
+@using Umbraco.Cms.Core.Services
+@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.NewsletterUnsubscribe>
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@using EmailPOC.ViewModels
+@using Microsoft.AspNetCore.Http
+@inject IMemberService MemberService
+
+@{
+	Layout = "MasterTemplate.cshtml";
+
+	bool UnsubscribeMember(IQueryCollection queryCollection)
+	{
+		string? email = queryCollection.FirstOrDefault(q => q.Key.Equals(nameof(IMember.Email))).Value;
+		string? token = queryCollection.FirstOrDefault(q => q.Key.Equals(nameof(NewsletterSubscriber.UnsubscribeToken))).Value;
+
+		if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(token))
+		{
+			return false;
+		}
+
+		IMember? member = MemberService.GetByEmail(email!);
+		if (member is null)
+		{
+			return false;
+		}
+
+		MemberService.Delete(member);
+		return true;
+	}
+
+	bool result = false;
+	IQueryCollection query = Context.Request.Query;
+	if (query != null && query.Any())
+	{
+		result = UnsubscribeMember(query);
+	}
+}
+
+@if (result)
+{
+	<h2 class="text-center mb-4">
+	You are unsubscribed
+	</h2>
+}
+else
+{
+	@await Html.PartialAsync("~/Views/Partials/Shared/_NewsletterCancelSubscriptionForm", new NewsletterSubscriberViewModel())
+}

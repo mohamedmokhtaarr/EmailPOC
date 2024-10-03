@@ -1,0 +1,17 @@
+﻿@using EmailPOC.Controllers.Surface
+@using EmailPOC.ViewModels
+@using Umbraco.Cms.Core.Services
+@model NewsletterSubscriberViewModel
+
+@using (Html.BeginUmbracoForm<NewsletterSubscriptionController>(nameof(NewsletterSubscriptionController.Unsubscribe), FormMethod.Post))
+{
+    <div class="mainContainer unsubscribeHolder text-center mb-5 mt-5 pb-5">
+        @Html.EditorForModel()
+        @if (Html.TempData[nameof(NewsletterSubscriberViewModel)] != null)
+        {
+            @Html.TempData[nameof(NewsletterSubscriberViewModel)]
+        }
+        <input type="submit" class="Unsubscribe" />
+    </div>
+
+}

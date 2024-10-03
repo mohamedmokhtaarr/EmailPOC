@@ -1,0 +1,16 @@
+﻿@using EmailPOC.ViewModels;
+@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<HomePage>;
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@{
+    Layout = "Master.cshtml"; 
+
+<div class="home-page-content">
+    <h1>Welcome to the Home Page</h1>
+
+    @Html.Partial("~/Views/Partials/Shared/_NewsletterSubscriptionForm.cshtml", new NewsletterSubscriberViewModel())
+  
+
+
+</div>
+}
