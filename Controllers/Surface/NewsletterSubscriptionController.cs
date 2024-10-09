@@ -133,27 +133,39 @@ namespace EmailPOC.Controllers.Surface
                 $"{CurrentPage!.Url(mode: UrlMode.Absolute)}?{nameof(IMember.Email)}={member.Email}&{nameof(NewsletterSubscriber.UnsubscribeToken)}={token}";
             member.SetValue(nameof(NewsletterSubscriber.UnsubscribeToken).ToFirstLower(), token);
 
-            string htmlTemplate = System.IO.File.ReadAllText("Views/Templates/NewsletterUnsubscribeMailTemplate.html");
+            string htmlTemplate = "This is Html Template to Unsubscribe News Letter";
             string mailSubject = "Unsubscribe from Newsletter";
             string mailText =
             string.Format(htmlTemplate, $"<a href='{unsubscribeUrl}'> {"Please use the following link to unsubscribe"} </a>");
 
+		    Guid newsletterGroupKey = new Guid("0a4a4c5c-ded9-4193-a39e-885dd78839dd"); // Replace with your group key
+		    IMemberGroup? newsletterGroup = _memberGroupService.GetById(newsletterGroupKey);
+		    if (newsletterGroup == null)
+		    {
+		    	return CurrentUmbracoPage();
+		    }
             if (await _emailHelper.SendEmail(
                     recepientEmail: member.Email,
                     mailSubject: mailSubject,
                     mailBody: mailText))
             {
-                TempData[nameof(NewsletterSubscriberViewModel)] = "Mailbox Check For Unsubscribing Process";
+                 var isSubscribed = _memberService.FindMembersInRole(newsletterGroup.Name, model.Email, Umbraco.Cms.Core.Persistence.Querying.StringPropertyMatchType.Exact);
+				if (isSubscribed.Any())
+				{
+                    _memberService.DissociateRole(member.Email, newsletterGroup.Name); // Unassign the member from the group
+				}
+				TempData[nameof(NewsletterSubscriberViewModel)] = "Mailbox Check For Unsubscribing Process";
                 _memberService.Save(member);
             }
             else
             {
                 TempData[nameof(NewsletterSubscriberViewModel)] = "Something went wrong, please try again later";
             }
-
+            
             Uri redirect = new(CurrentPage!.Url(mode: UrlMode.Absolute));
             return Redirect(redirect.AbsoluteUri);
         }
 
-    }
+
+	}
 }
