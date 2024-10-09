@@ -56,28 +56,5 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
 		[ImplementPropertyType("adminResponse")]
 		public virtual string AdminResponse => this.Value<string>(_publishedValueFallback, "adminResponse");
-
-		///<summary>
-		/// #Newsletter_MailAttachments
-		///</summary>
-		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.5.1+2e068bb")]
-		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		[ImplementPropertyType("attachments")]
-		public virtual global::Umbraco.Cms.Core.Models.MediaWithCrops Attachments => this.Value<global::Umbraco.Cms.Core.Models.MediaWithCrops>(_publishedValueFallback, "attachments");
-
-		///<summary>
-		/// #MailTemplates_FileName
-		///</summary>
-		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.5.1+2e068bb")]
-		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		[ImplementPropertyType("fileName")]
-		public virtual string FileName => this.Value<string>(_publishedValueFallback, "fileName");
-
-		///<summary>
-		/// #Newsletter_MailDate
-		///</summary>
-		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.5.1+2e068bb")]
-		[ImplementPropertyType("mailDate")]
-		public virtual global::System.DateTime MailDate => this.Value<global::System.DateTime>(_publishedValueFallback, "mailDate");
 	}
 }
