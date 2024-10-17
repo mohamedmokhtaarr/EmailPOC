@@ -1,4 +1,5 @@
 using EmailPOC;
+using MediatR;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +12,6 @@ builder.CreateUmbracoBuilder()
     .Build();
 
 WebApplication app = builder.Build();
-
 await app.BootUmbracoAsync();
 
 

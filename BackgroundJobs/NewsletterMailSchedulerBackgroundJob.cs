@@ -1,7 +1,9 @@
 ﻿using EmailPOC.DataAccess.Entities;
+using EmailPOC.Events;
 using EmailPOC.Extensions;
 using EmailPOC.Interfaces;
 using EmailPOC.Settings;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NAEPortal.Core.DataAccess;
@@ -23,20 +25,26 @@ namespace EmailPOC.BackgroundJobs
     {
         private readonly IMemberService _memberService;
         private readonly IContentService _contentService;
-
-        private readonly IEmailHelper _emailHelper;
+        private readonly IMediator _mediator;
         private readonly IMemberGroupService _memberGroupService;
+        private readonly ILogger<NewsletterMailSchedulerBackgroundJob> _logger;
 
-        public NewsletterMailSchedulerBackgroundJob(IMemberService memberService, IContentService contentService, IEmailHelper emailHelper, IMemberGroupService memberGroupService)
+        public NewsletterMailSchedulerBackgroundJob
+            (IMemberService memberService,
+            IContentService contentService,
+            IMemberGroupService memberGroupService,
+            ILogger<NewsletterMailSchedulerBackgroundJob> logger,
+            IMediator mediator)
         {
             _memberService = memberService;
             _contentService = contentService;
-            _emailHelper = emailHelper;
             _memberGroupService = memberGroupService;
+            _logger = logger;
+            _mediator = mediator;
         }
 
-        //private readonly int _runsEveryInSeconds;
-        public TimeSpan Period => TimeSpan.FromMinutes(1);
+        
+        public TimeSpan Period => TimeSpan.FromHours(1);
 
         public event EventHandler PeriodChanged;
 
@@ -51,51 +59,53 @@ namespace EmailPOC.BackgroundJobs
         }
         public async Task RunJobAsync()
         {
-            Guid newsletterGroupKey = new Guid("0a4a4c5c-ded9-4193-a39e-885dd78839dd"); // Replace with your group key
-            var newsletterGroup = _memberGroupService.GetById(newsletterGroupKey);
-
-            if (newsletterGroup == null)
+            try
             {
-                return; // Handle error: no group found
-            }
 
-            var subscribers = _memberService.GetMembersInRole(newsletterGroup.Name); // Get all subscribers
-            IContent? mailContainer = _contentService.GetRootContent()
-                        .FirstOrDefault(x=>x.ContentType.Alias.Equals(nameof(NewsletterList), StringComparison.OrdinalIgnoreCase));
-            
-            var mailResponse = _contentService.GetPagedChildren(mailContainer.Id,0,100,out long totalRecords).OrderByDescending(x=>x.PublishDate).FirstOrDefault();
-            
-            if (mailContainer == null)
-            {
-                return; // Handle error: rootNode not found
-            }
+                IContent? mailContainer = _contentService.GetRootContent()
+                            .FirstOrDefault(x => x.ContentType.Alias.Equals(nameof(NewsletterList), StringComparison.OrdinalIgnoreCase));
 
-            // Retrieve the "AdminResponse" property value from NewsletterMail
-            string? adminResponse = GetPrimitivePropertyValue<string> (mailResponse.Properties["adminResponse"]);
-
-            if (string.IsNullOrWhiteSpace(adminResponse))
-            {
-                return; // Handle error: adminResponse is null or empty
-            }
-
-            string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "Emails", "NewsletterTemplate.html");
-            string emailTemplate = await System.IO.File.ReadAllTextAsync(templatePath);
-
-            // Replace the placeholder {AdminResponse} with the actual content
-            string emailBody = emailTemplate.Replace("{AdminResponse}", adminResponse);
-            foreach (var subscriber in subscribers)
-            {
-                string email = subscriber.Email;
-                string subject = "Newsletter Subscription Test";
-
-                bool success = await _emailHelper.SendEmail(email, subject, emailBody);
-                if (!success)
+                if (mailContainer == null)
                 {
-                    // Log error or handle failed email
+                    _logger.LogError("No mail response found.");
+                    return;
                 }
+               
+                var mailResponse = _contentService.GetPagedChildren(mailContainer.Id, 0, 100, out long totalRecords)
+                    .OrderByDescending(x => x.PublishDate).FirstOrDefault();
+
+                if (mailResponse == null)
+                {
+                    _logger.LogError("No mail response found.");
+                    return;
+                }
+
+               
+                // Retrieve the "AdminResponse" property value from NewsletterMail
+                string? adminResponse = GetPrimitivePropertyValue<string>(mailResponse.Properties["adminResponse"]);
+
+                if (string.IsNullOrWhiteSpace(adminResponse))
+                {
+                    _logger.LogError("Admin response is empty.");
+                    return;
+                }
+
+                string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "Emails", "NewsletterTemplate.html");
+                string emailTemplate = await System.IO.File.ReadAllTextAsync(templatePath);
+                string emailBody = emailTemplate.Replace("{AdminResponse}", adminResponse);
+
+
+                var sendNewsletterEvent = new SendNewsletterEvent("Newsletter Subscription Test", emailBody);
+                await _mediator.Publish(sendNewsletterEvent);
+
+                _logger.LogInformation("SendNewsletterEvent fired successfully.");
             }
 
 
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while running the newsletter background job.");
+            }
         }
     }
 }

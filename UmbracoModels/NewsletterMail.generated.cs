@@ -56,5 +56,20 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
 		[ImplementPropertyType("adminResponse")]
 		public virtual string AdminResponse => this.Value<string>(_publishedValueFallback, "adminResponse");
+
+		///<summary>
+		/// #MailTemplates_ScheduledDate
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.5.1+2e068bb")]
+		[ImplementPropertyType("scheduledDate")]
+		public virtual global::System.DateTime ScheduledDate => this.Value<global::System.DateTime>(_publishedValueFallback, "scheduledDate");
+
+		///<summary>
+		/// #MailTemplates_UsersGroup
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.5.1+2e068bb")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("usersGroup")]
+		public virtual string UsersGroup => this.Value<string>(_publishedValueFallback, "usersGroup");
 	}
 }

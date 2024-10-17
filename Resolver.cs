@@ -2,6 +2,7 @@
 using EmailPOC.Helpers;
 using EmailPOC.Interfaces;
 using EmailPOC.Settings;
+using MediatR; // Import MediatR
 
 namespace EmailPOC
 {
@@ -9,20 +10,27 @@ namespace EmailPOC
     {
         public static IUmbracoBuilder AddCoreApplication(this IUmbracoBuilder umbracoBuilder)
         {
-
             umbracoBuilder
-                .AddNewsletterMailScheduling(umbracoBuilder.Config);
-
-            umbracoBuilder.Services
+                .AddNewsletterMailScheduling(umbracoBuilder.Config)
+                .AddMediatRHandlers() // Register MediatR Handlers
+                .Services
                 .AddValidationHelper(umbracoBuilder.Config)
-                 .AddApplicationServices(umbracoBuilder.Config);
+                .AddApplicationServices(umbracoBuilder.Config);
+
+            return umbracoBuilder;
+        }
+
+        // Register MediatR
+        private static IUmbracoBuilder AddMediatRHandlers(this IUmbracoBuilder umbracoBuilder)
+        {
+            umbracoBuilder.Services.AddMediatR(typeof(Resolver).Assembly); // Register MediatR
             return umbracoBuilder;
         }
 
         private static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
             services
-              .AddSingleton<IEmailHelper, EmailHelper>();
+                .AddSingleton<IEmailHelper, EmailHelper>(); // Register IEmailHelper
             return services;
         }
 
@@ -32,7 +40,7 @@ namespace EmailPOC
             configuration.Bind(nameof(ValidationHelperSettings), validationHelperSettings);
 
             return services
-                .AddSingleton<IValidationHelper, ValidationHelper>()
+                .AddSingleton<IValidationHelper, ValidationHelper>() // Register IValidationHelper
                 .AddSingleton(validationHelperSettings);
         }
 
@@ -41,7 +49,6 @@ namespace EmailPOC
             NewsletterSettings newsletterSettings = new();
             umbracoBuilder.Services.AddRecurringBackgroundJob<NewsletterMailSchedulerBackgroundJob>();
             return umbracoBuilder;
-
         }
     }
 }
