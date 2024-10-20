@@ -31,6 +31,7 @@ namespace EmailPOC
         {
             services
                 .AddSingleton<IEmailHelper, EmailHelper>()
+                 .AddScoped<IVerificationEmailHelper, VerificationEmailHelper>()// Register IEmailHelper
                  .AddScoped<IResetPasswordHelper, ResetPasswordHelper>();// Register IEmailHelper
             return services;
         }

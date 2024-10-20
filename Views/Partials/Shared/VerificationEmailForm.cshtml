@@ -1,0 +1,11 @@
+﻿@using EmailPOC.ViewModels
+@using EmailPOC.Controllers
+@model ResetPasswordViewModel
+
+
+
+<form method="post" action="/verification/verificationemail">
+    <label for="email">Enter your email:</label>
+    <input type="email" id="email" name="Email" required />
+    <button type="submit">Submit</button>
+</form>
