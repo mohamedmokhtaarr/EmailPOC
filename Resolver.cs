@@ -30,7 +30,8 @@ namespace EmailPOC
         private static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
             services
-                .AddSingleton<IEmailHelper, EmailHelper>(); // Register IEmailHelper
+                .AddSingleton<IEmailHelper, EmailHelper>()
+                 .AddScoped<IResetPasswordHelper, ResetPasswordHelper>();// Register IEmailHelper
             return services;
         }
 
@@ -50,5 +51,6 @@ namespace EmailPOC
             umbracoBuilder.Services.AddRecurringBackgroundJob<NewsletterMailSchedulerBackgroundJob>();
             return umbracoBuilder;
         }
+     
     }
 }

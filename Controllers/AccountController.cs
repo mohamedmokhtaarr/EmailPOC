@@ -1,4 +1,5 @@
 ﻿using EmailPOC.Events;
+using EmailPOC.Interfaces;
 using EmailPOC.ViewModels;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -9,12 +10,11 @@ namespace EmailPOC.Controllers
 
     public class AccountController : Controller
     {
-        private readonly IMediator _mediator;
-        public static readonly string TempResetPasswordMessageKey = "ResetPasswordMessage";
+        private readonly IResetPasswordHelper _resetPasswordHelper;
 
-        public AccountController(IMediator mediator)
+        public AccountController(IResetPasswordHelper resetPasswordHelper)
         {
-            _mediator = mediator;
+            _resetPasswordHelper = resetPasswordHelper;
         }
 
         [HttpPost("resetpassword")]
@@ -22,20 +22,10 @@ namespace EmailPOC.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (model.Email != null)
-                {
-                string userEmail = model.Email;
-                var resetPasswordEvent = new ResetPasswordEvent(userEmail);
-
-                // Fire the event
-                await _mediator.Publish(resetPasswordEvent);
-                }
-                
-                // Redirect to a confirmation page after success
+                await _resetPasswordHelper.TriggerResetPasswordEventAsync(model.Email);
                 return View("PasswordResetConfirmation");
             }
 
-            // If validation fails, return the view with the same model
             return View(model);
         }
 
