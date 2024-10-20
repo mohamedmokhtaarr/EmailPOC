@@ -10,7 +10,10 @@
 
         @Html?.Partial("~/Views/Partials/Shared/_NewsletterSubscriptionForm.cshtml", new NewsletterSubscriberViewModel());
         @Html?.Partial("~/Views/Partials/Shared/_NewsletterCancelSubscriptionForm .cshtml", new NewsletterSubscriberViewModel());
-    </div>
+        @Html?.Partial("~/Views/Partials/Shared/ResetPasswordForm.cshtml", new ResetPasswordViewModel());
+
+  
+        </div>
 
 
 }

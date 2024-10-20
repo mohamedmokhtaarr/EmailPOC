@@ -44,7 +44,7 @@ namespace EmailPOC.BackgroundJobs
         }
 
         
-        public TimeSpan Period => TimeSpan.FromHours(1);
+        public TimeSpan Period => TimeSpan.FromMinutes(1);
 
         public event EventHandler PeriodChanged;
 
