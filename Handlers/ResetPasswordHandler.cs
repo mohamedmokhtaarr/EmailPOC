@@ -1,28 +1,32 @@
 ﻿using EmailPOC.Events;
+using EmailPOC.Helpers;
 using EmailPOC.Interfaces;
 using MediatR;
 
 namespace EmailPOC.Handlers
 {
-    public class ResetPasswordHandler : INotificationHandler<ResetPasswordEvent>
+    public class ResetPasswordHandler :  BaseEmailHandler , INotificationHandler<ResetPasswordEvent>
     {
-        private readonly IEmailHelper _emailHelper;
 
-        public ResetPasswordHandler(IEmailHelper emailHelper)
+        public ResetPasswordHandler(IEmailHelper emailHelper) : base(emailHelper)
         {
-            _emailHelper = emailHelper;
         }
 
         public async Task Handle(ResetPasswordEvent notification, CancellationToken cancellationToken)
         {
             // Email content and sending logic
-            string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "Emails", "ResetPasswordTemplate.html");
-            string emailTemplate = await File.ReadAllTextAsync(templatePath);
-            string emailBody = emailTemplate;
+            string emailTemplate = await LoadEmailTemplateAsync("ResetPasswordTemplate");
+            
+            var placeholders = new Dictionary<string, string>
+            {
+                { "Username", notification.Email },  // Use email as username or fetch username
+                { "ResetLink", "https://www.google.com" }  // Generate reset link
+            };
+            string emailBody = ReplacePlaceholders(emailTemplate, placeholders);
             string subject = "Password Reset Request";
 
 
-            await _emailHelper.SendEmail(notification.Email, subject, emailBody);
+            await SendEmailAsync(notification.Email, subject, emailBody);
         }
     }
 

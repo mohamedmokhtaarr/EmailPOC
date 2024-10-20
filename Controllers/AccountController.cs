@@ -22,8 +22,12 @@ namespace EmailPOC.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (!model.Email.IsNullOrWhiteSpace())
+                {
                 await _resetPasswordHelper.TriggerResetPasswordEventAsync(model.Email);
                 return View("PasswordResetConfirmation");
+
+                }
             }
 
             return View(model);
