@@ -1,5 +1,5 @@
-﻿using EmailPOC.DataAccess.Entities;
-using NAEPortal.Core.DataAccess;
+﻿using EmailPOC.DataAccess;
+using EmailPOC.DataAccess.Entities;
 
 namespace EmailPOC.Interfaces
 {

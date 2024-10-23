@@ -1,7 +1,7 @@
 ﻿using EmailPOC.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace NAEPortal.Core.DataAccess
+namespace EmailPOC.DataAccess
 {
     public class NewsletterMailDbContext : DbContext
     {
@@ -22,5 +22,6 @@ namespace NAEPortal.Core.DataAccess
 
         public DbSet<NewsletterMailEntity> NewsletterMails { get; set; }
         public DbSet<FailedMailEntity> FaildMails { get; set; }
+        public DbSet<EmailLog> EmailLogs { get; set; }
     }
 }

@@ -1,8 +1,10 @@
 ﻿using EmailPOC.BackgroundJobs;
+using EmailPOC.DataAccess;
 using EmailPOC.Helpers;
 using EmailPOC.Interfaces;
 using EmailPOC.Settings;
-using MediatR; // Import MediatR
+using MediatR;
+using Microsoft.EntityFrameworkCore; // Import MediatR
 
 namespace EmailPOC
 {
@@ -15,6 +17,7 @@ namespace EmailPOC
                 .AddMediatRHandlers() // Register MediatR Handlers
                 .Services
                 .AddValidationHelper(umbracoBuilder.Config)
+                .AddCorePersistence(umbracoBuilder.Config)
                 .AddApplicationServices(umbracoBuilder.Config);
 
             return umbracoBuilder;
@@ -30,9 +33,9 @@ namespace EmailPOC
         private static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
             services
-                .AddSingleton<IEmailHelper, EmailHelper>()
-                 .AddScoped<IVerificationEmailHelper, VerificationEmailHelper>()// Register IEmailHelper
-                 .AddScoped<IResetPasswordHelper, ResetPasswordHelper>();// Register IEmailHelper
+                .AddSingleton<IEmailHelper, EmailHelper>()// Register IEmailHelper
+                 .AddScoped<IVerificationEmailHelper, VerificationEmailHelper>()
+                 .AddScoped<IResetPasswordHelper, ResetPasswordHelper>();
             return services;
         }
 
@@ -45,13 +48,24 @@ namespace EmailPOC
                 .AddSingleton<IValidationHelper, ValidationHelper>() // Register IValidationHelper
                 .AddSingleton(validationHelperSettings);
         }
-
+        // Register Background Job
         private static IUmbracoBuilder AddNewsletterMailScheduling(this IUmbracoBuilder umbracoBuilder, IConfiguration configuration)
         {
             NewsletterSettings newsletterSettings = new();
             umbracoBuilder.Services.AddRecurringBackgroundJob<NewsletterMailSchedulerBackgroundJob>();
             return umbracoBuilder;
         }
-     
+        public static IServiceCollection AddCorePersistence(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.Configure<DatabaseSettings>(configuration.GetSection(key: nameof(DatabaseSettings)));
+            services.AddDbContext<NewsletterMailDbContext>(cfg =>
+            {
+                cfg.UseSqlServer(configuration.GetConnectionString("umbracoDbDSN"));
+            });
+
+      
+            return services;
+        }
+
     }
 }

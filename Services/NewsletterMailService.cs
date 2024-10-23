@@ -10,9 +10,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
-using NAEPortal.Core.DataAccess;
 using Serilog;
 using EmailPOC.Extensions;
+using EmailPOC.DataAccess;
 
 namespace EmailPOC.Services
 {
@@ -177,5 +177,6 @@ namespace EmailPOC.Services
             return ("Subject", output.ToString());
         }
 
+      
     }
 }

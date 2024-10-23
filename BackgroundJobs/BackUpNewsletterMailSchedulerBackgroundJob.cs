@@ -6,7 +6,6 @@ using EmailPOC.Settings;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using NAEPortal.Core.DataAccess;
 using Serilog;
 using System.Diagnostics;
 using System.Linq;

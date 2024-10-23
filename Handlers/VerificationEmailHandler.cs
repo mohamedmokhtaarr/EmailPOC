@@ -1,4 +1,5 @@
-﻿using EmailPOC.Events;
+﻿using EmailPOC.DataAccess;
+using EmailPOC.Events;
 using EmailPOC.Helpers;
 using EmailPOC.Interfaces;
 using MediatR;
@@ -7,25 +8,25 @@ namespace EmailPOC.Handlers
 {
     public class VerificationEmailHandler : BaseEmailHandler, INotificationHandler<VerificationEmailEvent>
     {
-        public VerificationEmailHandler(IEmailHelper emailHelper) : base(emailHelper)
+        public VerificationEmailHandler(IEmailHelper emailHelper, NewsletterMailDbContext dbContext, ILogger<BaseEmailHandler> logger) : base(emailHelper, dbContext, logger)
         {
         }
 
         public async Task Handle(VerificationEmailEvent notification, CancellationToken cancellationToken)
         {
             // Email content and sending logic
-            string emailTemplate = await LoadEmailTemplateAsync("VerificationEmailTemplate");
+            string emailTemplate = await LoadEmailTemplateAsync("VerificationEmailTemplate", cancellationToken);
 
             var placeholders = new Dictionary<string, string>
             {
-                { "Username", notification.Email },  // Use email as username or fetch username
-                { "VerificationLink", "https://www.google.com" }  // Generate reset link
+                { "Username", notification.Email },  
+                { "VerificationLink", "https://www.google.com" }  
             };
             string emailBody = ReplacePlaceholders(emailTemplate, placeholders);
             string subject = "Verification Email";
 
 
-            await SendEmailAsync(notification.Email, subject, emailBody);
+            await SendEmailAsync(notification.Email, subject, emailBody, cancellationToken);
         }
     }
 }
